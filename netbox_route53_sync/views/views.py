@@ -1,18 +1,29 @@
+from django.contrib.contenttypes.models import ContentType
 from netbox.views import generic
 
 from ..filtersets import (
     AWSAccountFilterSet, HostedZoneFilterSet, RegisteredDomainFilterSet,
-    SyncLogFilterSet, ZoneRecordFilterSet,
+    ServiceLinkFilterSet, SyncLogFilterSet, ZoneRecordFilterSet,
 )
 from ..forms import (
     AWSAccountFilterForm, HostedZoneFilterForm, RegisteredDomainFilterForm,
-    SyncLogFilterForm, ZoneRecordFilterForm,
+    ServiceLinkFilterForm, SyncLogFilterForm, ZoneRecordFilterForm,
 )
-from ..models import AWSAccount, HostedZone, RegisteredDomain, SyncLog, ZoneRecord
+from ..models import AWSAccount, HostedZone, RegisteredDomain, ServiceLink, SyncLog, ZoneRecord
 from ..tables import (
     AWSAccountTable, HostedZoneTable, RegisteredDomainTable,
-    SyncLogTable, ZoneRecordTable,
+    ServiceLinkTable, SyncLogTable, ZoneRecordTable,
 )
+
+
+def _service_links_for(instance) -> ServiceLinkTable:
+    """Return a ServiceLinkTable pre-filtered to the given object."""
+    ct = ContentType.objects.get_for_model(instance)
+    qs = ServiceLink.objects.filter(
+        assigned_object_type=ct,
+        assigned_object_id=instance.pk,
+    ).select_related("service")
+    return ServiceLinkTable(qs)
 
 
 # ---------------------------------------------------------------------------
@@ -32,11 +43,13 @@ class AWSAccountView(generic.ObjectView):
     template_name = "netbox_route53_sync/awsaccount.html"
 
     def get_extra_context(self, request, instance):
-        zones_table   = HostedZoneTable(instance.hosted_zones.all())
-        domains_table = RegisteredDomainTable(instance.registered_domains.all())
+        zones_table         = HostedZoneTable(instance.hosted_zones.all())
+        domains_table       = RegisteredDomainTable(instance.registered_domains.all())
+        service_links_table = _service_links_for(instance)
         return {
-            "zones_table":   zones_table,
-            "domains_table": domains_table,
+            "zones_table":          zones_table,
+            "domains_table":        domains_table,
+            "service_links_table":  service_links_table,
         }
 
 
@@ -57,8 +70,12 @@ class HostedZoneView(generic.ObjectView):
     template_name = "netbox_route53_sync/hostedzone.html"
 
     def get_extra_context(self, request, instance):
-        records_table = ZoneRecordTable(instance.records.all())
-        return {"records_table": records_table}
+        records_table       = ZoneRecordTable(instance.records.all())
+        service_links_table = _service_links_for(instance)
+        return {
+            "records_table":       records_table,
+            "service_links_table": service_links_table,
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -77,6 +94,9 @@ class ZoneRecordView(generic.ObjectView):
     queryset      = ZoneRecord.objects.select_related("zone", "zone__account", "linked_ip")
     template_name = "netbox_route53_sync/zonerecord.html"
 
+    def get_extra_context(self, request, instance):
+        return {"service_links_table": _service_links_for(instance)}
+
 
 # ---------------------------------------------------------------------------
 # RegisteredDomain
@@ -93,6 +113,26 @@ class RegisteredDomainListView(generic.ObjectListView):
 class RegisteredDomainView(generic.ObjectView):
     queryset      = RegisteredDomain.objects.select_related("account", "hosted_zone")
     template_name = "netbox_route53_sync/registereddomain.html"
+
+    def get_extra_context(self, request, instance):
+        return {"service_links_table": _service_links_for(instance)}
+
+
+# ---------------------------------------------------------------------------
+# ServiceLink
+# ---------------------------------------------------------------------------
+
+class ServiceLinkListView(generic.ObjectListView):
+    queryset       = ServiceLink.objects.select_related("assigned_object_type", "service")
+    table          = ServiceLinkTable
+    filterset      = ServiceLinkFilterSet
+    filterset_form = ServiceLinkFilterForm
+    template_name  = "netbox_route53_sync/servicelink_list.html"
+
+
+class ServiceLinkView(generic.ObjectView):
+    queryset      = ServiceLink.objects.select_related("assigned_object_type", "service")
+    template_name = "netbox_route53_sync/servicelink.html"
 
 
 # ---------------------------------------------------------------------------

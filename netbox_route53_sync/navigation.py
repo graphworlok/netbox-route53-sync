@@ -25,6 +25,15 @@ menu = PluginMenu(
             ),
         ),
         (
+            "Associations",
+            (
+                PluginMenuItem(
+                    link="plugins:netbox_route53_sync:servicelink_list",
+                    link_text="Service Links",
+                ),
+            ),
+        ),
+        (
             "Operations",
             (
                 PluginMenuItem(

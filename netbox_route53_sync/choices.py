@@ -27,6 +27,27 @@ class ZoneTypeChoices(ChoiceSet):
     ]
 
 
+class ServiceLinkRoleChoices(ChoiceSet):
+    """
+    The nature of the relationship between a Route53 object and a NetBox Service.
+    """
+    TECHNICAL_OWNER  = "technical-owner"
+    BUSINESS_OWNER   = "business-owner"
+    DNS_PROVIDER     = "dns-provider"
+    SERVES           = "serves"       # this zone/record serves traffic for the service
+    MANAGED_BY       = "managed-by"   # service team manages this zone/domain
+    OTHER            = "other"
+
+    CHOICES = [
+        (TECHNICAL_OWNER, "Technical Owner",  "blue"),
+        (BUSINESS_OWNER,  "Business Owner",   "indigo"),
+        (DNS_PROVIDER,    "DNS Provider",     "teal"),
+        (SERVES,          "Serves",           "green"),
+        (MANAGED_BY,      "Managed By",       "orange"),
+        (OTHER,           "Other",            "secondary"),
+    ]
+
+
 class RecordTypeChoices(ChoiceSet):
     """Standard DNS record types supported by Route53."""
     A     = "A"

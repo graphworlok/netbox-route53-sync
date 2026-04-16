@@ -58,8 +58,25 @@
     </div>
     {% endif %}
 
+    {% include 'inc/panels/contacts.html' %}
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/custom_fields.html' %}
+  </div>
+
+  <div class="col col-md-6">
+    {% if service_links_table.rows %}
+    <div class="card">
+      <h5 class="card-header">Service Links ({{ service_links_table.rows|length }})</h5>
+      <div class="card-body">
+        {% include 'responsive_table.html' with table=service_links_table %}
+      </div>
+    </div>
+    {% else %}
+    <div class="card">
+      <h5 class="card-header text-muted">Service Links</h5>
+      <div class="card-body text-muted">No service links defined for this record.</div>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

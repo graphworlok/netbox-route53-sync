@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import AWSAccount, HostedZone, RegisteredDomain, SyncLog, ZoneRecord
+from ..models import AWSAccount, HostedZone, RegisteredDomain, ServiceLink, SyncLog, ZoneRecord
 
 
 class AWSAccountSerializer(serializers.ModelSerializer):
@@ -35,6 +35,21 @@ class RegisteredDomainSerializer(serializers.ModelSerializer):
             "auto_renew", "transfer_lock", "expiry",
             "hosted_zone", "last_synced_at",
         ]
+
+
+class ServiceLinkSerializer(serializers.ModelSerializer):
+    assigned_object_type = serializers.SerializerMethodField()
+    role_display         = serializers.CharField(source="get_role_display", read_only=True)
+
+    class Meta:
+        model  = ServiceLink
+        fields = [
+            "id", "assigned_object_type", "assigned_object_id",
+            "service", "role", "role_display", "notes",
+        ]
+
+    def get_assigned_object_type(self, obj) -> str:
+        return f"{obj.assigned_object_type.app_label}.{obj.assigned_object_type.model}"
 
 
 class SyncLogSerializer(serializers.ModelSerializer):

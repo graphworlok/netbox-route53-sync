@@ -1,7 +1,7 @@
 import django_filters
 
-from .choices import RecordTypeChoices, SyncStatusChoices, ZoneTypeChoices
-from .models import AWSAccount, HostedZone, RegisteredDomain, SyncLog, ZoneRecord
+from .choices import RecordTypeChoices, ServiceLinkRoleChoices, SyncStatusChoices, ZoneTypeChoices
+from .models import AWSAccount, HostedZone, RegisteredDomain, ServiceLink, SyncLog, ZoneRecord
 
 
 class AWSAccountFilterSet(django_filters.FilterSet):
@@ -54,6 +54,18 @@ class RegisteredDomainFilterSet(django_filters.FilterSet):
 
     def search(self, qs, name, value):
         return qs.filter(domain_name__icontains=value)
+
+
+class ServiceLinkFilterSet(django_filters.FilterSet):
+    q    = django_filters.CharFilter(method="search", label="Search")
+    role = django_filters.ChoiceFilter(choices=ServiceLinkRoleChoices)
+
+    class Meta:
+        model  = ServiceLink
+        fields = ["role", "service"]
+
+    def search(self, qs, name, value):
+        return qs.filter(notes__icontains=value) | qs.filter(service__name__icontains=value)
 
 
 class SyncLogFilterSet(django_filters.FilterSet):

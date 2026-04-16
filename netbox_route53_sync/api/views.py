@@ -1,10 +1,10 @@
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 
-from ..models import AWSAccount, HostedZone, RegisteredDomain, SyncLog, ZoneRecord
+from ..models import AWSAccount, HostedZone, RegisteredDomain, ServiceLink, SyncLog, ZoneRecord
 from .serializers import (
     AWSAccountSerializer, HostedZoneSerializer, RegisteredDomainSerializer,
-    SyncLogSerializer, ZoneRecordSerializer,
+    ServiceLinkSerializer, SyncLogSerializer, ZoneRecordSerializer,
 )
 
 
@@ -36,6 +36,22 @@ class ZoneRecordViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 class RegisteredDomainViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     queryset         = RegisteredDomain.objects.select_related("account", "hosted_zone")
     serializer_class = RegisteredDomainSerializer
+
+
+class ServiceLinkViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+    queryset         = ServiceLink.objects.select_related("assigned_object_type", "service")
+    serializer_class = ServiceLinkSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # Allow filtering by ?object_type=hostedzone&object_id=42
+        object_type = self.request.query_params.get("object_type")
+        object_id   = self.request.query_params.get("object_id")
+        if object_type:
+            qs = qs.filter(assigned_object_type__model=object_type.lower())
+        if object_id:
+            qs = qs.filter(assigned_object_id=object_id)
+        return qs
 
 
 class SyncLogViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):

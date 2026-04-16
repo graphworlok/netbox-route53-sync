@@ -21,6 +21,10 @@ urlpatterns = [
     path("registered-domains/",         views.RegisteredDomainListView.as_view(), name="registereddomain_list"),
     path("registered-domains/<int:pk>/", views.RegisteredDomainView.as_view(),    name="registereddomain"),
 
+    # Service Links
+    path("service-links/",              views.ServiceLinkListView.as_view(),     name="servicelink_list"),
+    path("service-links/<int:pk>/",     views.ServiceLinkView.as_view(),         name="servicelink"),
+
     # Sync Logs
     path("sync-logs/",                  views.SyncLogListView.as_view(),         name="synclog_list"),
     path("sync-logs/<int:pk>/",         views.SyncLogView.as_view(),             name="synclog"),

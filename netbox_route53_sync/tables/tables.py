@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from netbox.tables import NetBoxTable, columns
 
-from ..models import AWSAccount, HostedZone, RegisteredDomain, SyncLog, ZoneRecord
+from ..models import AWSAccount, HostedZone, RegisteredDomain, ServiceLink, SyncLog, ZoneRecord
 
 
 class AWSAccountTable(NetBoxTable):
@@ -72,6 +72,20 @@ class RegisteredDomainTable(NetBoxTable):
         model = RegisteredDomain
         fields = ("pk", "domain_name", "account", "auto_renew", "transfer_lock", "expiry", "hosted_zone", "actions")
         default_columns = ("domain_name", "account", "expiry", "auto_renew", "hosted_zone", "actions")
+
+
+class ServiceLinkTable(NetBoxTable):
+    assigned_object_type = tables.Column(verbose_name="Object Type")
+    assigned_object      = tables.Column(verbose_name="Route53 Object", linkify=lambda record: record.assigned_object.get_absolute_url() if record.assigned_object else None)
+    service              = tables.Column(linkify=True, verbose_name="Service")
+    role                 = columns.ChoiceFieldColumn(verbose_name="Role")
+    notes                = tables.Column(verbose_name="Notes")
+    actions              = columns.ActionsColumn(actions=("edit", "delete"))
+
+    class Meta(NetBoxTable.Meta):
+        model = ServiceLink
+        fields = ("pk", "assigned_object_type", "assigned_object", "service", "role", "notes", "actions")
+        default_columns = ("assigned_object", "service", "role", "actions")
 
 
 class SyncLogTable(NetBoxTable):

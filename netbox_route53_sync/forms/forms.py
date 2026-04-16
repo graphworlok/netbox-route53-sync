@@ -1,6 +1,6 @@
 from django import forms
 
-from ..choices import RecordTypeChoices, SyncStatusChoices, ZoneTypeChoices
+from ..choices import RecordTypeChoices, ServiceLinkRoleChoices, SyncStatusChoices, ZoneTypeChoices
 
 
 class AWSAccountFilterForm(forms.Form):
@@ -28,6 +28,21 @@ class RegisteredDomainFilterForm(forms.Form):
         widget=forms.TextInput(attrs={"placeholder": "Domain name…"}))
     auto_renew    = forms.NullBooleanField(required=False, label="Auto Renew")
     transfer_lock = forms.NullBooleanField(required=False, label="Transfer Lock")
+
+
+class ServiceLinkForm(forms.Form):
+    """
+    Used when creating or editing a ServiceLink from a detail page.
+    Full ModelForm would be defined if edit views are added later.
+    """
+    pass
+
+
+class ServiceLinkFilterForm(forms.Form):
+    q = forms.CharField(required=False, label="Search",
+        widget=forms.TextInput(attrs={"placeholder": "Service name or notes…"}))
+    role = forms.ChoiceField(required=False,
+        choices=[("", "Any role")] + list(ServiceLinkRoleChoices), label="Role")
 
 
 class SyncLogFilterForm(forms.Form):
