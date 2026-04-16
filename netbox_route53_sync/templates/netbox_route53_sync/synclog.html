@@ -1,0 +1,56 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+
+{% block title %}Sync Log: {{ object }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Run Details</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr><th scope="row">Account ID</th><td><code>{{ object.account_id }}</code></td></tr>
+          <tr><th scope="row">Account Label</th><td>{{ object.account_label|default:"—" }}</td></tr>
+          <tr><th scope="row">Status</th>
+            <td><span class="badge bg-{{ object.get_status_color }}">{{ object.get_status_display }}</span></td></tr>
+          <tr><th scope="row">Started</th><td>{{ object.started_at }}</td></tr>
+          <tr><th scope="row">Completed</th><td>{{ object.completed_at|default:"—" }}</td></tr>
+          <tr><th scope="row">Duration</th>
+            <td>{% if object.duration %}{{ object.duration }}{% else %}—{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    {% if object.message %}
+    <div class="card mt-3">
+      <h5 class="card-header text-danger">Errors / Warnings</h5>
+      <div class="card-body"><pre class="mb-0 text-danger small">{{ object.message }}</pre></div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Counters</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr><th colspan="2" class="table-secondary">Registered Domains</th></tr>
+          <tr><th scope="row">Seen</th><td>{{ object.domains_seen }}</td></tr>
+          <tr><th scope="row">Created</th><td>{{ object.domains_created }}</td></tr>
+          <tr><th scope="row">Updated</th><td>{{ object.domains_updated }}</td></tr>
+
+          <tr><th colspan="2" class="table-secondary">Hosted Zones</th></tr>
+          <tr><th scope="row">Seen</th><td>{{ object.zones_seen }}</td></tr>
+          <tr><th scope="row">Created</th><td>{{ object.zones_created }}</td></tr>
+          <tr><th scope="row">Updated</th><td>{{ object.zones_updated }}</td></tr>
+
+          <tr><th colspan="2" class="table-secondary">Zone Records</th></tr>
+          <tr><th scope="row">Imported</th><td>{{ object.records_seen }}</td></tr>
+          <tr><th scope="row">Replaced (deleted + recreated)</th><td>{{ object.records_deleted }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

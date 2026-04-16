@@ -1,0 +1,51 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+
+{% block title %}AWS Account: {{ object.display_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">AWS Account</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr><th scope="row">Account ID</th><td><code>{{ object.account_id }}</code></td></tr>
+          <tr><th scope="row">Label</th><td>{{ object.label|default:"—" }}</td></tr>
+          <tr><th scope="row">Last Synced</th><td>{{ object.last_synced_at|default:"Never" }}</td></tr>
+          <tr><th scope="row">Hosted Zones</th><td>{{ object.hosted_zones.count }}</td></tr>
+          <tr><th scope="row">Registered Domains</th><td>{{ object.registered_domains.count }}</td></tr>
+        </table>
+      </div>
+    </div>
+    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+  </div>
+</div>
+
+{% if zones_table.rows %}
+<div class="row mt-4">
+  <div class="col">
+    <div class="card">
+      <h5 class="card-header">Hosted Zones ({{ object.hosted_zones.count }})</h5>
+      <div class="card-body">
+        {% include 'responsive_table.html' with table=zones_table %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if domains_table.rows %}
+<div class="row mt-4">
+  <div class="col">
+    <div class="card">
+      <h5 class="card-header">Registered Domains ({{ object.registered_domains.count }})</h5>
+      <div class="card-body">
+        {% include 'responsive_table.html' with table=domains_table %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

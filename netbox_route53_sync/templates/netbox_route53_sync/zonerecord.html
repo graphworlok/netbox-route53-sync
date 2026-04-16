@@ -1,0 +1,65 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+
+{% block title %}{{ object.name }} {{ object.record_type }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Record</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr><th scope="row">Name</th><td><code>{{ object.name }}</code></td></tr>
+          <tr><th scope="row">Type</th>
+            <td><span class="badge bg-{{ object.get_record_type_color }}">{{ object.record_type }}</span></td></tr>
+          <tr><th scope="row">Zone</th>
+            <td><a href="{{ object.zone.get_absolute_url }}">{{ object.zone.name }}</a></td></tr>
+          <tr><th scope="row">Account</th>
+            <td><a href="{{ object.zone.account.get_absolute_url }}">{{ object.zone.account.display_name }}</a></td></tr>
+          <tr><th scope="row">TTL</th><td>{{ object.ttl|default:"— (alias)" }}</td></tr>
+          <tr><th scope="row">Alias</th>
+            <td>{% if object.is_alias %}<span class="badge bg-indigo">Yes</span>{% else %}No{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    {% if not object.is_alias %}
+    <div class="card mt-3">
+      <h5 class="card-header">Values ({{ object.values|length }})</h5>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          {% for v in object.values %}
+          <li><code>{{ v }}</code></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% else %}
+    <div class="card mt-3">
+      <h5 class="card-header">Alias Target</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr><th scope="row">DNS Name</th><td><code>{{ object.alias_dns_name }}</code></td></tr>
+          <tr><th scope="row">Hosted Zone ID</th><td><code>{{ object.alias_hosted_zone_id }}</code></td></tr>
+          <tr><th scope="row">Evaluate Target Health</th>
+            <td>{{ object.alias_evaluate_target_health|yesno:"Yes,No,—" }}</td></tr>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if object.linked_ip %}
+    <div class="card mt-3">
+      <h5 class="card-header">Linked NetBox IP</h5>
+      <div class="card-body">
+        <a href="{{ object.linked_ip.get_absolute_url }}">{{ object.linked_ip }}</a>
+      </div>
+    </div>
+    {% endif %}
+
+    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+  </div>
+</div>
+{% endblock %}

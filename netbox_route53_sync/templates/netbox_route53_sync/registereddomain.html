@@ -1,0 +1,47 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+
+{% block title %}Registered Domain: {{ object.domain_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col col-md-6">
+    <div class="card {% if object.is_expired %}border-danger{% endif %}">
+      <h5 class="card-header {% if object.is_expired %}bg-danger text-white{% endif %}">
+        Domain Registration
+        {% if object.is_expired %}<span class="float-end badge bg-light text-danger">EXPIRED</span>{% endif %}
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr><th scope="row">Domain Name</th><td><strong>{{ object.domain_name }}</strong></td></tr>
+          <tr><th scope="row">AWS Account</th>
+            <td><a href="{{ object.account.get_absolute_url }}">{{ object.account.display_name }}</a></td></tr>
+          <tr><th scope="row">Auto Renew</th>
+            <td>{% if object.auto_renew %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-warning text-dark">No</span>{% endif %}</td></tr>
+          <tr><th scope="row">Transfer Lock</th>
+            <td>{% if object.transfer_lock %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-danger">No</span>{% endif %}</td></tr>
+          <tr><th scope="row">Expiry</th>
+            <td>
+              {% if object.expiry %}
+                {% if object.is_expired %}
+                  <strong class="text-danger">{{ object.expiry|date:"Y-m-d" }}</strong>
+                {% else %}
+                  {{ object.expiry|date:"Y-m-d" }}
+                {% endif %}
+              {% else %}—{% endif %}
+            </td></tr>
+          <tr><th scope="row">Hosted Zone</th>
+            <td>
+              {% if object.hosted_zone %}
+                <a href="{{ object.hosted_zone.get_absolute_url }}">{{ object.hosted_zone.name }}</a>
+              {% else %}<span class="text-muted">Not linked</span>{% endif %}
+            </td></tr>
+          <tr><th scope="row">Last Synced</th><td>{{ object.last_synced_at|default:"—" }}</td></tr>
+        </table>
+      </div>
+    </div>
+    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+  </div>
+</div>
+{% endblock %}
